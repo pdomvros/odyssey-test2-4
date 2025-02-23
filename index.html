@@ -1,1 +1,160 @@
-
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Οδύσσεια - Ραψωδίες β,γ,δ</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            text-align: center;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: black;
+            color: white;
+        }
+        h1 {
+            color: gold;
+        }
+        .author {
+            font-size: 14px;
+            color: white;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .question {
+            font-size: 20px;
+            margin: 20px;
+            padding: 15px;
+            border: 2px solid gold;
+            border-radius: 10px;
+            display: block;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: gold;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #c9a200;
+        }
+        .score-board {
+            margin-top: 20px;
+            font-size: 18px;
+            padding: 10px;
+            border: 2px solid white;
+            display: inline-block;
+        }
+        .hidden {
+            display: none;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .navigation-buttons button {
+            background-color: #4CAF50; /* Πράσινο */
+        }
+        .navigation-buttons button:nth-child(2) {
+            background-color: #f44336; /* Κόκκινο */
+        }
+        .navigation-buttons button:nth-child(3) {
+            background-color: #2196F3; /* Μπλε */
+        }
+    </style>
+</head>
+<body>
+    <div class="author">Δημιουργία: Παναγιώτης Δόμβρος 2025 (CC BY-NC)</div>
+    <h1>Οδύσσεια - Ραψωδίες β,γ,δ</h1>
+    <p>Κάνε μια επανάληψη στις ραψωδίες και απάντησε τις ερωτήσεις που ακολουθούν.</p>
+    
+    <div class="navigation-buttons">
+        <button onclick="window.location.href='https://pdomvros.github.io/odyssey2/'">Ραψωδία β</button>
+        <button onclick="window.location.href='https://pdomvros.github.io/odyssey3/'">Ραψωδία γ</button>
+        <button onclick="window.location.href='https://pdomvros.github.io/odyssey4/'">Ραψωδία δ</button>
+    </div>
+    
+    <div class="score-board">Σκορ: <span id="score">0</span>/20</div>
+    
+    <div id="quiz-container">
+        <div id="question" class="question"></div>
+        <button id="true-btn" onclick="checkAnswer(true)">Σωστό ✅</button>
+        <button id="false-btn" onclick="checkAnswer(false)">Λάθος ❌</button>
+    </div>
+    
+    <audio id="success-sound" src="success-sound.mp3"></audio>
+    <audio id="fail-sound" src="fail-sound.mp3"></audio>
+    <audio id="success-sound2" src="success-sound2.mp3"></audio>
+    
+    <script>
+        const questions = [
+            { text: "🔹 Ο μάντης Αλιθέρσης προφήτευσε ότι ο Οδυσσέας δεν θα επιστρέψει ποτέ στην Ιθάκη.", answer: false },
+            { text: "🔹 Οι μνηστήρες συμφώνησαν να σταματήσουν τις καταχρήσεις και να φύγουν από το παλάτι του Οδυσσέα.", answer: false },
+            { text: "🔹 Ο Τηλέμαχος προσευχήθηκε στην Αθηνά, η οποία τον ενθάρρυνε να ξεκινήσει το ταξίδι του.", answer: true },
+            { text: "🔹 Ο Τηλέμαχος αναχώρησε για την Πύλο κρυφά, χωρίς να το γνωρίζει η μητέρα του, η Πηνελόπη.", answer: true },
+            { text: "🔹 Ο Μέντορας ήταν ένας από τους θεούς που βοήθησαν τον Οδυσσέα να επιστρέψει στην Ιθάκη.", answer: false },
+            { text: "🔹 Η Πηνελόπη λυπήθηκε πολύ όταν έμαθε ότι ο Τηλέμαχος είχε φύγει χωρίς να της πει τίποτα.", answer: true },
+            { text: "🔹 Οι μνηστήρες σχεδίασαν να σκοτώσουν τον Τηλέμαχο όταν θα επέστρεφε στην Ιθάκη.", answer: true },
+            { text: "🔹 Ο Τηλέμαχος έφτασε στην Πύλο, όπου τον υποδέχθηκε ο βασιλιάς Νέστωρ.", answer: true },
+            { text: "🔹 Στην Πύλο, ο Νέστωρ τελούσε θυσία στον Δία όταν έφτασε ο Τηλέμαχος.", answer: false },
+            { text: "🔹 Ο Νέστωρ ενημέρωσε τον Τηλέμαχο ότι ο Οδυσσέας είχε επιστρέψει στην Ιθάκη.", answer: false },
+            { text: "🔹 Μετά τη συνάντηση, ο Νέστωρ έστειλε τον γιο του, Πεισίστρατο, να συνοδεύσει τον Τηλέμαχο στη Σπάρτη.", answer: true },
+            { text: "🔹 Ο Τηλέμαχος και ο Πεισίστρατος ταξίδεψαν στη Σπάρτη με πλοίο.", answer: false },
+            { text: "🔹 Ο Νέστωρ δεν γνώριζε τίποτα για την τύχη του Οδυσσέα και συνέστησε στον Τηλέμαχο να ρωτήσει τον Μενέλαο.", answer: true },
+            { text: "🔹 Ο βασιλιάς Μενέλαος και η βασίλισσα Ελένη υποδέχθηκαν τον Τηλέμαχο με ένα συμπόσιο.", answer: true },
+            { text: "🔹 Ο Μενέλαος αφηγήθηκε τις εμπειρίες του από τον Τρωικό Πόλεμο και μίλησε για τον Οδυσσέα.", answer: true },
+            { text: "🔹 Ο Μενέλαος είπε στον Τηλέμαχο ότι ο Οδυσσέας είχε πεθάνει στην Τροία.", answer: false },
+            { text: "🔹 Η Ελένη είπε ότι αναγνώρισε τον Οδυσσέα όταν αυτός μπήκε μεταμφιεσμένος στην Τροία.", answer: true },
+            { text: "🔹 Ο Μενέλαος είχε επιστρέψει εύκολα στη Σπάρτη αμέσως μετά τον Τρωικό Πόλεμο.", answer: false },
+            { text: "🔹 Ο Τηλέμαχος έφυγε από τη Σπάρτη αμέσως μετά τη συνάντησή του με τον Μενέλαο, χωρίς να διανυκτερεύσει.", answer: false },
+            { text: "🔹 Οι μνηστήρες στην Ιθάκη ετοίμαζαν ενέδρα για να σκοτώσουν τον Τηλέμαχο κατά την επιστροφή του.", answer: true }
+        ];
+        
+        let currentQuestion = 0;
+        let score = 0;
+        const questionDiv = document.getElementById("question");
+        
+        function displayQuestion() {
+            if (currentQuestion >= questions.length) {
+                document.getElementById("quiz-container").classList.add("hidden");
+                if (score > 15) document.getElementById("success-sound2").play();
+                return;
+            }
+            
+            questionDiv.innerText = questions[currentQuestion].text;
+            questionDiv.classList.remove("correct", "incorrect");
+        }
+        
+        function checkAnswer(answer) {
+            if (questions[currentQuestion].answer === answer) {
+                questionDiv.classList.add("correct");
+                score++;
+                document.getElementById("success-sound").play();
+            } else {
+                questionDiv.classList.add("incorrect");
+                document.getElementById("fail-sound").play();
+            }
+            
+            document.getElementById("score").innerText = score;
+            setTimeout(() => {
+                currentQuestion++;
+                displayQuestion();
+            }, 1000);
+        }
+        
+        displayQuestion();
+    </script>
+</body>
+</html>
